@@ -90,7 +90,6 @@ def main(clean=True, diff=False, reference=False, threshold=False, only_matches=
 
     last_images = deque(maxlen=2)
     counter = 0
-    # filenames = ['2018-03-24_09/2018-03-24_09-03-1521882208.jpeg']
     for filename in filenames[1:]:
         orig_i2 = cv2.imread(filename)
         filename = os.path.basename(filename)
@@ -100,7 +99,6 @@ def main(clean=True, diff=False, reference=False, threshold=False, only_matches=
         cv2.putText(i2_with_rects, f'{filename}', (10, 400), font, .7, (0, 255, 255), 2, cv2.LINE_AA)
         d, tres, rects = get_diff_between_images(i1_gray, i2_gray)
 
-        # rects = merge_rects(rects)
         filtered_rects = []
 
         for rect in rects:
@@ -122,17 +120,12 @@ def main(clean=True, diff=False, reference=False, threshold=False, only_matches=
         if diff or threshold or reference:
             output_filename = f'output/{filename}-00.jpeg'
 
-        # if len(rects):
         print('[Ref:', reference_filename, ']', filename, sorted([((x2 - x1) * (y2 - y1), (x2 - x1) / (y2 - y1)) for x1, y1, x2, y2 in rects]))
         cv2.imwrite(output_filename, i2_with_rects)
-            # for idx, r in enumerate(rects):
-            #     cv2.imwrite(f'matches/{filename}-{idx}.jpeg', orig_i2[r[1]:r[3], r[0]:r[2]])
 
         if len(rects) or not only_matches:
             if threshold:
                 cv2.imwrite(f'output/{filename}-0-threshold.jpeg', tres)
-                canny = cv2.Canny(orig_i2, 100, 200)
-                cv2.imwrite(f'output/{filename}-0-contours.jpeg', canny)
 
             if diff:
                 cv2.imwrite(f'output/{filename}-0-diff.jpeg', d)
@@ -140,22 +133,12 @@ def main(clean=True, diff=False, reference=False, threshold=False, only_matches=
             if reference:
                 cv2.imwrite(f'output/{filename}-0-reference.jpeg', i1)
 
-        diffs = 1
-        # if len(rects):
-        #     if len(last_images) == 2:
-        #         diffs = sum(
-        #             len(get_diff_between_images(i, i2_gray)[-1])
-        #             for i in last_images
-        #         )
-
-        if not diffs or not len(rects):
+        if not len(rects):
             reference_filename = filename
             i1 = orig_i2
             i1_gray = i2_gray
 
         last_images.append(i2_gray)
-
-# 2018-03-24_12-48-1521895739.jpeg-00
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
